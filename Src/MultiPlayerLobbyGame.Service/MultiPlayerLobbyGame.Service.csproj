@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\MultiPlayerLobbyGame.Share\MultiPlayerLobbyGame.Share.csproj" />
+  </ItemGroup>
+
 </Project>
