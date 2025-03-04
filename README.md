@@ -24,7 +24,7 @@ Follow these steps to set up and run the application:
 
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/your-username/MultiPlayerLobbyGame.API.git
+   git clone https://github.com/harpm/MultiPlayerLobbyGame.API.git
    cd MultiPlayerLobbyGame.API
    ```
 2.  **Build and Run the Application**:
