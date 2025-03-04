@@ -3,5 +3,5 @@ namespace MultiPlayerLobbyGame.Contracts;
 
 public interface IPodService
 {
-    Task<bool> InitializePod(int[] ports, string ip);
+    Task<bool> InitializePod(string ip, int[] ports);
 }

@@ -4,9 +4,17 @@ using MultiPlayerLobbyGame.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddMPLServices();
-builder.InitializePod();
+builder.Services.InjectRequiredServices();
+builder.SetStaticInfo();
 
 var app = builder.Build();
 
-app.Run();
+var isInitted = await app.Services.InitializePod();
+if (!isInitted)
+{
+    throw new Exception("Failed to init the pod...");
+}
+else
+{
+    app.Run();
+}

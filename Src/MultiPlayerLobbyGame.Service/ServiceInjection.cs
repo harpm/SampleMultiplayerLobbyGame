@@ -1,8 +1,8 @@
 ﻿
 using Microsoft.Extensions.DependencyInjection;
 using MultiPlayerLobbyGame.Contracts;
-using MultiPlayerLobbyGame.Service.Lobby;
-using MultiPlayerLobbyGame.Service.Pod;
+using MultiPlayerLobbyGame.Service.LobbyServices;
+using MultiPlayerLobbyGame.Service.PodServices;
 
 namespace MultiPlayerLobbyGame.Service;
 
