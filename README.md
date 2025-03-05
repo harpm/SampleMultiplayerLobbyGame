@@ -24,8 +24,8 @@ Follow these steps to set up and run the application:
 
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/harpm/MultiPlayerLobbyGame.API.git
-   cd MultiPlayerLobbyGame.API
+   git clone https://github.com/harpm/MultiPlayerLobbyGame.git
+   cd Src
    ```
 2.  **Build and Run the Application**:
 Use Docker Compose to build and run the application along with the Redis instance:
