@@ -1,20 +1,14 @@
 
 using MultiPlayerLobbyGame.API;
-using MultiPlayerLobbyGame.Service;
+using MultiPlayerLobbyGame.API.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.InjectRequiredServices();
-builder.SetStaticInfo();
+builder.SetStaticInfo(args);
+builder.InjectRequiredServices();
 
 var app = builder.Build();
 
-var isInitted = await app.Services.InitializePod();
-if (!isInitted)
-{
-    throw new Exception("Failed to init the pod...");
-}
-else
-{
-    app.Run();
-}
+app.UseMiddleware<InitializerMiddleware>();
+app.Run();
+

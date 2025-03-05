@@ -1,7 +1,10 @@
 ﻿
+using MultiPlayerLobbyGame.Share.Models;
+
 namespace MultiPlayerLobbyGame.Contracts;
 
 public interface IPodService
 {
-    Task<bool> InitializePod(string ip, int[] ports);
+    Task<Pod> InitializePod(string ip, int[] ports);
+    Task<Pod> GetNextPod();
 }
