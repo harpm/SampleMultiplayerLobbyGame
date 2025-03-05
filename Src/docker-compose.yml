@@ -8,9 +8,14 @@ services:
       - "6379:6379"
     networks:
       - app-network
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
 
   multiplayerlobbygame-api:
     image: multiplayerlobbygame-api
+    expose:
+      - "5001"
     build:
       context: .
       dockerfile: Dockerfile
@@ -22,6 +27,12 @@ services:
     networks:
       - app-network
     scale: 3 # Run 3 instances of the app
+    restart: unless-stopped
+    volumes:
+      - redis-data:/app
+
+volumes:
+    redis-data:
 
 networks:
   app-network:
