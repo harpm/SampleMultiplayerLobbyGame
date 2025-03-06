@@ -13,11 +13,13 @@ public class LobbyController
         _service = service;
     }
 
+    [HttpGet("Connect")]
     public Task Connect(Guid playerId)
     {
         return _service.Connect(playerId);
     }
 
+    [HttpGet("Disconnect")]
     public Task Disconnect(Guid playerId)
     {
         return _service.Disconnect(playerId);

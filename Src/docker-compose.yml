@@ -14,22 +14,19 @@ services:
 
   multiplayerlobbygame-api:
     image: multiplayerlobbygame-api
-    expose:
-      - "5001"
+    ports:
+      - "5000-5050:5000"
     build:
       context: .
       dockerfile: Dockerfile
     environment:
+      - ASPNETCORE_URLS=http://127.0.0.1:5000
       - ASPNETCORE_ENVIRONMENT=Production
       - RedisConnection=redis:6379
     depends_on:
       - redis
     networks:
       - app-network
-    scale: 3 # Run 3 instances of the app
-    restart: unless-stopped
-    volumes:
-      - redis-data:/app
 
 volumes:
     redis-data:

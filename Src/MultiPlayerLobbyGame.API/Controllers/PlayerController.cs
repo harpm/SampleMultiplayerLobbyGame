@@ -12,8 +12,8 @@ public class PlayerController : ControllerBase
         _service = service;
     }
 
-    [HttpGet("RegisterUser/{name}")]
-    public Task RegisterUser(string name)
+    [HttpGet("RegisterUser")]
+    public Task<Guid> RegisterUser(string name)
     {
         return _service.RegisterPlayer(name);
     }

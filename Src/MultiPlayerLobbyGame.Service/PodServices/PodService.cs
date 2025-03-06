@@ -31,7 +31,7 @@ public class PodService : IPodService
         {
             var self = new Pod()
             {
-                Id = new Guid(),
+                Id = Guid.NewGuid(),
                 IP = ip,
                 Ports = ports,
                 IsMaster = false,

@@ -19,17 +19,27 @@ public class LoadBalanceMiddleware
         }
         else
         {
-            // Just for now
-            await _next(context);
-            return;
             var podService = context.RequestServices.GetRequiredService<IPodService>();
             var nextPod = await podService.GetNextPod();
-            
-            var httpClient = context.RequestServices.GetRequiredService<HttpClient>();
-            httpClient.BaseAddress = new Uri($"{nextPod.IP}:{nextPod.Ports.First()}");
-            var method = HttpMethod.Parse(context.Request.Method);
-            var req = new HttpRequestMessage(method, context.Request.Path.ToString());
-            // TODO: Send the request to the next pod instance
+
+            if (nextPod.Id == StaticConfigs.Self.Id)
+            {
+                await _next(context);
+            }
+            else
+            {
+                var httpClient = context.RequestServices.GetRequiredService<HttpClient>();
+                httpClient.BaseAddress = new Uri($"{nextPod.IP}:{nextPod.Ports.First()}");
+                var method = HttpMethod.Parse(context.Request.Method);
+                var req = new HttpRequestMessage(method, context.Request.Path.ToString());
+                var result = await httpClient.SendAsync(req);
+                context.Response.StatusCode = (int) result.StatusCode;
+                foreach (var item in result.Headers)
+                {
+                    context.Response.Headers.Append(item.Key, item.Value.ToString());
+                }
+                await context.Response.WriteAsync(await result.Content.ReadAsStringAsync());
+            }
             
         }
     }
