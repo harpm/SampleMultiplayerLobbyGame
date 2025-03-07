@@ -17,7 +17,7 @@ internal static class StartUp
 
         builder.Services.AddMPLServices();
 
-        builder.Services.AddSingleton<HttpClient>(new HttpClient());
+        builder.Services.AddHttpClient();
     }
 
     public static void SetStaticInfo(this WebApplicationBuilder builder, string[] args)

@@ -9,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 Console.WriteLine($"[DEBUG]: ASPNETCORE_URLS -> {builder.Configuration["ASPNETCORE_URLS"]}");
 
 builder.Services.AddControllers();
+builder.Services.AddHealthChecks();
 builder.Services.AddSwaggerGen(options =>
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" })
 );
@@ -41,6 +42,7 @@ if (StaticConfigs.IsInitialized)
 
     app.UseRouting();
     app.MapControllers();
+    app.MapHealthChecks("/health");
 
     app.UseMiddleware<LoadBalanceMiddleware>();
     app.Run();

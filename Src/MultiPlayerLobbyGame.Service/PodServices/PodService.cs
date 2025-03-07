@@ -2,6 +2,7 @@
 using StackExchange.Redis;
 using MultiPlayerLobbyGame.Contracts;
 using MultiPlayerLobbyGame.Share.Models;
+using MultiPlayerLobbyGame.Share;
 
 namespace MultiPlayerLobbyGame.Service.PodServices;
 
@@ -12,8 +13,7 @@ public class PodService : IPodService
     protected readonly IConnectionMultiplexer _connection;
     protected int _roundRobinCounter = 0;
 
-    public PodService(IConnectionMultiplexer connectionMultiplexer
-        , HttpClient httpclient)
+    public PodService(IConnectionMultiplexer connectionMultiplexer)
     {
         _connection = connectionMultiplexer;
     }
@@ -25,7 +25,7 @@ public class PodService : IPodService
 
         foreach (var item in podList)
         {
-            Console.WriteLine($"[DEBUG] => POD ({item.Id}) -> PORT: {item.Ports}, IP: {item.IP}");
+            Console.WriteLine($"[DEBUG]: POD ({item.Id}) -> PORT: {string.Join(", ", item.Ports)}, IP: {item.IP}");
         }
 
         return podList;
@@ -110,6 +110,40 @@ public class PodService : IPodService
             }
 
             result = next;
+        }
+        catch (Exception ex)
+        {
+
+        }
+
+        return result;
+    }
+
+    public virtual async Task<bool> MakeMeMaster()
+    {
+        bool result = false;
+
+        try
+        {
+            StaticConfigs.Self.IsMaster = true;
+            var db = _connection.GetDatabase();
+            var masterPodId = await db.StringGetSetAsync(_Master_Pod_key
+                , StaticConfigs.Self.Id.ToString());
+            var rawOldMasterPod = await db.HashGetAsync(_key, masterPodId);
+            if (!string.IsNullOrWhiteSpace(rawOldMasterPod))
+            {
+                var oldMasterPod = JsonSerializer.Deserialize<Pod>(rawOldMasterPod);
+                oldMasterPod.IsMaster = false;
+                await db.HashSetAsync(_key
+                    , oldMasterPod.Id.ToString()
+                    , JsonSerializer.Serialize(oldMasterPod));
+            }
+
+            await db.HashSetAsync(_key
+                , StaticConfigs.Self.Id.ToString()
+                , JsonSerializer.Serialize(StaticConfigs.Self));
+
+            result = true;
         }
         catch (Exception ex)
         {

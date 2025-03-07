@@ -1,8 +1,8 @@
 ﻿
+using System.Text.Json;
 using StackExchange.Redis;
 using MultiPlayerLobbyGame.Contracts;
 using MultiPlayerLobbyGame.Share.Models;
-using System.Text.Json;
 using MultiPlayerLobbyGame.Service.PlayerServices;
 
 namespace MultiPlayerLobbyGame.Service.LobbyServices;
@@ -114,8 +114,11 @@ public class LobbyService : ILobbyService
             joinedLobby.PlayersCount--;
             await db.HashSetAsync(_key, joinedLobby.Id.ToString(), JsonSerializer.Serialize(joinedLobby));
 
-            // Finally remove the player lobby from the Database
-            await db.HashDeleteAsync(PlayerService._key, player.Id.ToString());
+            // Finally remove the player lobby id from the Database
+            player.JoinedLobby = Guid.Empty;
+            await db.HashSetAsync(PlayerService._key
+                , player.Id.ToString()
+                , JsonSerializer.Serialize(player));
 
             result = true;
         }
