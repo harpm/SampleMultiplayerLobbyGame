@@ -42,13 +42,13 @@ This will:
   ```bash
   docker-compose up --build --scale multiplayerlobbygame-api=5
   ```
-4. **Access the Application:**:
+4. **Access the Application**:
    Once the containers are running, you can access the application at:
    ```bash
    http://localhost:80
    ```
    (Replace 80 with the port number if you've customized it in the docker-compose.yml file.)
-5. **Stopping the Application:**:
+5. **Stopping the Application**:
    To stop the application and all running containers, use:
    ```bash
    docker-compose down
