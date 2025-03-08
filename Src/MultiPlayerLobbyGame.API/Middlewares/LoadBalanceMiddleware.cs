@@ -31,7 +31,7 @@ public class LoadBalanceMiddleware
             {
                 // Check if master is healthy
                 var masterPod = await podService.GetMasterPod();
-                if (await CheckPodHealth(masterPod, httpClient))
+                if (!await CheckPodHealth(masterPod, httpClient))
                 {
                     await podService.MakeMeMaster();
                 }
@@ -42,28 +42,26 @@ public class LoadBalanceMiddleware
         else
         {
             var isHealthy = false;
-            Pod nextPod = await podService.GetNextPod();
+            do
+            {
+                Pod nextPod = await podService.GetNextPod();
 
-            if (nextPod.Id == StaticConfigs.Self.Id)
-            {
-                await _next(context);
-            }
-            else if (nextPod.Id != Guid.Empty)
-            {
-                while (!isHealthy)
+                if (nextPod.Id == StaticConfigs.Self.Id)
+                {
+                    await _next(context);
+                    break;
+                }
+                else if (nextPod.Id != Guid.Empty)
                 {
                     isHealthy = await CheckPodHealth(nextPod, httpClient);
                     if (!isHealthy)
                     {
-                        nextPod = await podService.GetNextPod();
+                        continue;
                     }
+
+                    await SendRequestToPod(context, nextPod);
                 }
-                await SendRequestToPod(context, nextPod);
-            }
-            else
-            {
-                context.Response.StatusCode = 500;
-            }
+            } while (!isHealthy);
         }
     }
 
