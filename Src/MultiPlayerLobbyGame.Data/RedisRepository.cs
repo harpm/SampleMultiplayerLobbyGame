@@ -246,6 +246,12 @@ public abstract class RedisRepositoryBase<T, TKey> : IRedisRepository<T, TKey>
         return result;
     }
 
+    /// <summary>
+    /// Execute a transaction thread safe and 
+    /// </summary>
+    /// <param name="query"></param>
+    /// <returns> True if the transaction committed successfully and false if transaction aborted </returns>
+    /// <exception cref="ArgumentNullException"></exception>
     public bool Transaction(Func<bool> query)
     {
         bool result = false;
@@ -261,7 +267,9 @@ public abstract class RedisRepositoryBase<T, TKey> : IRedisRepository<T, TKey>
             try
             {
                 query.Invoke();
+                // TODO: consider exec result
                 _database.Execute("EXEC");
+                result = true;
             }
             catch (Exception ex)
             {
@@ -294,7 +302,9 @@ public abstract class RedisRepositoryBase<T, TKey> : IRedisRepository<T, TKey>
             try
             {
                 await query.Invoke();
+                // TODO: consider exec result
                 _database.Execute("EXEC");
+                result = true;
             }
             catch (Exception ex)
             {
