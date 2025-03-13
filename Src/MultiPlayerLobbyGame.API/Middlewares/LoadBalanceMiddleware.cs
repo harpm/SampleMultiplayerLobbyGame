@@ -1,4 +1,4 @@
-﻿using MultiPlayerLobbyGame.Contracts;
+﻿using MultiPlayerLobbyGame.Contracts.Services;
 using MultiPlayerLobbyGame.Share;
 using MultiPlayerLobbyGame.Share.Models;
 

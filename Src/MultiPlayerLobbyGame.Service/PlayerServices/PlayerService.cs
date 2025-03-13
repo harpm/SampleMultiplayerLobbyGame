@@ -1,19 +1,17 @@
 ﻿
-using MultiPlayerLobbyGame.Contracts;
+using MultiPlayerLobbyGame.Contracts.Repositories;
+using MultiPlayerLobbyGame.Contracts.Services;
 using MultiPlayerLobbyGame.Share.Models;
-using StackExchange.Redis;
-using System.Text.Json;
 
 namespace MultiPlayerLobbyGame.Service.PlayerServices;
 
 public class PlayerService : IPlayerService
 {
-    public static string _key => "PLAYER";
-    protected readonly IConnectionMultiplexer _connection;
+    protected readonly IPlayerRepository _playerRepository;
 
-    public PlayerService(IConnectionMultiplexer connectionMultiplexer)
+    public PlayerService(IPlayerRepository playerRepository)
     {
-        _connection = connectionMultiplexer;
+        this._playerRepository = playerRepository;
     }
 
     public virtual async Task<Guid> RegisterPlayer(string name)
@@ -29,8 +27,7 @@ public class PlayerService : IPlayerService
                 JoinedLobby = Guid.Empty
             };
 
-            var db = _connection.GetDatabase();
-            await db.HashSetAsync(_key, newPlayer.Id.ToString(), JsonSerializer.Serialize(newPlayer));
+            await _playerRepository.InsertAsync(newPlayer);
             result = newPlayer.Id;
         }
         catch (Exception ex)

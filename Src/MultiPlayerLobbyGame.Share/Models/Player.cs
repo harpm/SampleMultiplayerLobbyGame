@@ -1,9 +1,10 @@
 ﻿
+using MultiPlayerLobbyGame.Contracts;
+
 namespace MultiPlayerLobbyGame.Share.Models;
 
-public class Player
+public class Player : RedisModel<Guid>
 {
-    public Guid Id { get; set; }
     public string Name { get; set; }
     public Guid JoinedLobby { get; set; }
 }

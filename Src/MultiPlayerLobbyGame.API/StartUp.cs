@@ -1,10 +1,10 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 using StackExchange.Redis;
-using MultiPlayerLobbyGame.Contracts;
 using MultiPlayerLobbyGame.Service;
 using MultiPlayerLobbyGame.Share;
 using MultiPlayerLobbyGame.Share.Utills;
+using MultiPlayerLobbyGame.Contracts.Services;
 
 namespace MultiPlayerLobbyGame.API;
 

@@ -12,7 +12,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\MultiPlayerLobbyGame.Contracts\MultiPlayerLobbyGame.Contracts.csproj" />
+		<ProjectReference Include="..\MultiPlayerLobbyGame.Data\MultiPlayerLobbyGame.Data.csproj" />
 	</ItemGroup>
 
 </Project>
