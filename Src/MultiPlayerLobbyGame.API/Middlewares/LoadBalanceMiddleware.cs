@@ -34,9 +34,13 @@ public class LoadBalanceMiddleware
                 if (!await CheckPodHealth(masterPod, httpClient))
                 {
                     await podService.MakeMeMaster();
+                    await _next(context);
+                }
+                else
+                {
+                    await SendRequestToPod(context, masterPod);
                 }
 
-                await SendRequestToPod(context, masterPod);
             }
         }
         else
