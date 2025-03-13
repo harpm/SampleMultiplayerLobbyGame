@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MultiPlayerLobbyGame.Contracts;
+using MultiPlayerLobbyGame.Contracts.Services;
 
 namespace MultiPlayerLobbyGame.API.Controllers;
 

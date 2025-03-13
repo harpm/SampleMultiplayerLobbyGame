@@ -1,7 +1,6 @@
-﻿
-using MultiPlayerLobbyGame.Share.Models;
+﻿using MultiPlayerLobbyGame.Share.Models;
 
-namespace MultiPlayerLobbyGame.Contracts;
+namespace MultiPlayerLobbyGame.Contracts.Services;
 
 public interface IPodService
 {

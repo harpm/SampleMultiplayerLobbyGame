@@ -1,5 +1,4 @@
-﻿
-namespace MultiPlayerLobbyGame.Contracts;
+﻿namespace MultiPlayerLobbyGame.Contracts.Services;
 
 public interface ILobbyService
 {

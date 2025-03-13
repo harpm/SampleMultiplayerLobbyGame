@@ -1,34 +1,18 @@
-﻿using System.Text.Json;
-using StackExchange.Redis;
-using MultiPlayerLobbyGame.Contracts;
-using MultiPlayerLobbyGame.Share.Models;
+﻿using MultiPlayerLobbyGame.Share.Models;
 using MultiPlayerLobbyGame.Share;
+using MultiPlayerLobbyGame.Contracts.Repositories;
+using MultiPlayerLobbyGame.Contracts.Services;
 
 namespace MultiPlayerLobbyGame.Service.PodServices;
 
 public class PodService : IPodService
 {
-    protected virtual string _key => "POD";
-    protected virtual string _Master_Pod_key => "MASTER_POD";
-    protected readonly IConnectionMultiplexer _connection;
+    protected readonly IPodRepository _podRepository;
     protected int _roundRobinCounter = 0;
 
-    public PodService(IConnectionMultiplexer connectionMultiplexer)
+    public PodService(IPodRepository podRepository)
     {
-        _connection = connectionMultiplexer;
-    }
-
-    protected virtual async Task<IEnumerable<Pod>> InternalGetAll(IDatabase db)
-    {
-        var rawPodList = await db.HashGetAllAsync(_key);
-        var podList = rawPodList.Select(p => JsonSerializer.Deserialize<Pod>(p.Value));
-
-        foreach (var item in podList)
-        {
-            Console.WriteLine($"[DEBUG]: POD ({item.Id}) -> PORT: {string.Join(", ", item.Ports)}, IP: {item.IP}");
-        }
-
-        return podList;
+        _podRepository = podRepository;
     }
 
     public virtual async Task<Pod> GetMasterPod()
@@ -37,14 +21,11 @@ public class PodService : IPodService
 
         try
         {
-            var db = _connection.GetDatabase();
-            var masterId = await db.StringGetAsync(_Master_Pod_key);
+            var masterId = await _podRepository.GetMasterId();
 
-            if (!string.IsNullOrWhiteSpace(masterId))
+            if (masterId != Guid.Empty)
             {
-                var rawMasterPod = await db.HashGetAsync(_key, masterId);
-                var masterPod = JsonSerializer.Deserialize<Pod>(rawMasterPod);
-                result = masterPod;
+                result = await _podRepository.GetByIdAsync(masterId);
             }
         }
         catch (Exception ex)
@@ -69,18 +50,15 @@ public class PodService : IPodService
                 IsMaster = false,
             };
 
-            var db = _connection.GetDatabase();
-            var podList = await InternalGetAll(db);
+            var podList = await _podRepository.GetAllAsync();
 
             if (!podList.Where(p => p.IsMaster).Any())
             {
                 self.IsMaster = true;
-                db.StringSetAsync(_Master_Pod_key, self.Id.ToString());
+                await _podRepository.SetMasterId(self.Id);
             }
 
-            await db.HashSetAsync(_key
-                , self.Id.ToString()
-                , JsonSerializer.Serialize(self));
+            await _podRepository.InsertAsync(self);
 
             result = self;
         }
@@ -98,8 +76,7 @@ public class PodService : IPodService
 
         try
         {
-            var db = _connection.GetDatabase();
-            var podList = await InternalGetAll(db);
+            var podList = await _podRepository.GetAllAsync();
             var next = podList.Skip(_roundRobinCounter)
                 .Take(1)
                 .First();
@@ -125,23 +102,19 @@ public class PodService : IPodService
 
         try
         {
-            StaticConfigs.Self.IsMaster = true;
-            var db = _connection.GetDatabase();
-            var masterPodId = await db.StringGetSetAsync(_Master_Pod_key
-                , StaticConfigs.Self.Id.ToString());
-            var rawOldMasterPod = await db.HashGetAsync(_key, masterPodId);
-            if (!string.IsNullOrWhiteSpace(rawOldMasterPod))
+            await _podRepository.TransactionAsync(async () =>
             {
-                var oldMasterPod = JsonSerializer.Deserialize<Pod>(rawOldMasterPod);
-                oldMasterPod.IsMaster = false;
-                await db.HashSetAsync(_key
-                    , oldMasterPod.Id.ToString()
-                    , JsonSerializer.Serialize(oldMasterPod));
-            }
+                var oldMasterPodId = await _podRepository.SwapMasterIdAsync(StaticConfigs.Self.Id);
+                var oldMasterPod = await _podRepository.GetByIdAsync(oldMasterPodId);
 
-            await db.HashSetAsync(_key
-                , StaticConfigs.Self.Id.ToString()
-                , JsonSerializer.Serialize(StaticConfigs.Self));
+                oldMasterPod.IsMaster = false;
+                await _podRepository.UpdateAsync(oldMasterPodId, oldMasterPod);
+
+                StaticConfigs.Self.IsMaster = true;
+                await _podRepository.UpdateAsync(StaticConfigs.Self.Id, StaticConfigs.Self);
+
+                return true;
+            });
 
             result = true;
         }
