@@ -246,7 +246,6 @@ public abstract class RedisRepositoryBase<T, TKey> : IRedisRepository<T, TKey>
         return result;
     }
 
-    // TODO: Implement in the future
     public bool Transaction(Func<bool> query)
     {
         bool result = false;
